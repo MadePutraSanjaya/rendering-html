@@ -2,8 +2,7 @@ package main
 
 import (
 	"renderin-html/initializers"
-
-	"github.com/gin-gonic/gin"
+	"renderin-html/routes"
 )
 
 func init() {
@@ -12,9 +11,6 @@ func init() {
 }
 
 func main() {
-	r := gin.Default()
-
-
-	r.Run()
-
+	routes.ActionRoute()
+	routes.Routes()
 }
