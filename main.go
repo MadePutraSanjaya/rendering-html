@@ -11,6 +11,6 @@ func init() {
 }
 
 func main() {
-	routes.ActionRoute()
 	routes.Routes()
+	routes.ActionRoute()
 }

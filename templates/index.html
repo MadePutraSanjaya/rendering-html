@@ -15,25 +15,28 @@
     </div>
 
     <div class="table-top container">
-        <table>
-            <tr class=" bg-variant tr-header">
+      <table>
+          <tr class="bg-variant tr-header">
               <th>ID</th>
               <th>Robot ID</th>
               <th>Vendor ID</th>
               <th>Task ID</th>
               <th>Task Type</th>
               <th>Destination Point</th>
-            </tr>
-            <tr class="bg-secondary">
-              <td>yrdd</td>
-              <td>ddd</td>
-              <td>ddd</td>
-              <td>ddd</td>
-              <td>ddd</td>
-              <td>ddd</td>
-            </tr>
-          </table>
-    </div>
+          </tr>
+          {{ range .delivery }}
+          <tr class="bg-secondary">
+              <td>{{ .ID }}</td>
+              <td>{{ .RobotId }}</td>
+              <td>{{ .VendorId }}</td>
+              <td>{{ .TaskId }}</td>
+              <td>{{ .TaskType }}</td>
+              <td>{{ .DestinationPoint }}</td>
+          </tr>
+          {{ end }}
+      </table>
+  </div>
+  
 
 </body>
 </html>
