@@ -98,12 +98,19 @@ func DeliverysUpdate(c *gin.Context) {
 
 	c.Bind(&body)
 
-	// find the delivery where will updating
+	// find the post where will updating
 	var deliverys models.Delivery
 	result := initializers.DB.Find(&deliverys, id)
 
 	// update data
-	initializers.DB.Model(&deliverys).Updates(models.Delivery{ID: uuid, RobotId: body.RobotId, VendorId: body.VendorId, TaskId: body.TaskId, TaskType: body.TaskType, DestinationPoint: body.DestinationPoint})
+	initializers.DB.Model(&deliverys).Updates(models.Delivery{
+		ID:    uuid,
+		RobotId: body.RobotId,
+		VendorId:  body.VendorId,
+		TaskId:  body.TaskId,
+		TaskType:  body.TaskType,
+		DestinationPoint:  body.DestinationPoint,
+	})
 
 	// response
 	c.JSON(200, gin.H{

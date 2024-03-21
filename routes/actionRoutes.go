@@ -11,10 +11,9 @@ func ActionRoute() {
 
 	r.GET("/delivery", controllers.DeliverysIndex)
 	r.GET("/delivery/:id", controllers.DeliverysShow)
-	r.DELETE("/delivery/:id", controllers.DeliverysDelete)
-	r.PUT("/delivery/:id", controllers.DeliverysUpdate)
 	r.POST("/delivery", controllers.DeliverysCreate)
-
+	r.PUT("/delivery/:id", controllers.DeliverysUpdate)
+	r.DELETE("/delivery/:id", controllers.DeliverysDelete)
 	r.Run()
 
 }
