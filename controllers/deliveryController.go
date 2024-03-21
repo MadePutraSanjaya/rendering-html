@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"net/http"
 	"renderin-html/initializers"
 	"renderin-html/models"
 
@@ -81,11 +82,13 @@ func DeliverysShow(c *gin.Context) {
 }
 
 func DeliverysUpdate(c *gin.Context) {
-	// Generate new UUID
-	uuid := uuid.New()
-
 	// get id
-	id := c.Param("id")
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "invalid ID format"})
+		return
+	}
 
 	// get data
 	var body struct {
@@ -96,49 +99,56 @@ func DeliverysUpdate(c *gin.Context) {
 		DestinationPoint string
 	}
 
-	c.Bind(&body)
-
-	// find the post where will updating
-	var deliverys models.Delivery
-	result := initializers.DB.Find(&deliverys, id)
-
-	// update data
-	initializers.DB.Model(&deliverys).Updates(models.Delivery{
-		ID:    uuid,
-		RobotId: body.RobotId,
-		VendorId:  body.VendorId,
-		TaskId:  body.TaskId,
-		TaskType:  body.TaskType,
-		DestinationPoint:  body.DestinationPoint,
-	})
-
-	// response
-	c.JSON(200, gin.H{
-		"deliverys": deliverys,
-	})
-
-	if result.Error != nil {
-		c.Status(400)
+	if err := c.Bind(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// find the delivery
+	var delivery models.Delivery
+	if err := initializers.DB.First(&delivery, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "delivery not found"})
+		return
+	}
+
+	// update data
+	delivery.RobotId = body.RobotId
+	delivery.VendorId = body.VendorId
+	delivery.TaskId = body.TaskId
+	delivery.TaskType = body.TaskType
+	delivery.DestinationPoint = body.DestinationPoint
+
+	if err := initializers.DB.Save(&delivery).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update delivery"})
+		return
+	}
+
+	// response
+	c.JSON(http.StatusOK, gin.H{"delivery": delivery})
 }
 
 func DeliverysDelete(c *gin.Context) {
 	// get id
-	id := c.Param("id")
-
-	// find the delivery where will deleting
-	var deliverys models.Delivery
-	result := initializers.DB.Delete(&deliverys, id)
-
-	// response
-	c.JSON(200, gin.H{
-		"message": "Delete Delivery Successfully",
-	})
-
-	if result.Error != nil {
-		c.Status(400)
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
+
+	// find the delivery
+	var delivery models.Delivery
+	if err := initializers.DB.First(&delivery, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "delivery not found"})
+		return
+	}
+
+	// delete the delivery
+	if err := initializers.DB.Delete(&delivery).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete delivery"})
+		return
+	}
+
+	// response
+	c.JSON(http.StatusOK, gin.H{"message": "Delivery successfully deleted"})
 }
