@@ -20,7 +20,7 @@ func Routes() {
             c.HTML(http.StatusInternalServerError, "error.html", gin.H{
                 "error": err.Error(),
             })
-            return
+            return 
         }
 
 		c.HTML(http.StatusOK, "index.html", gin.H{
