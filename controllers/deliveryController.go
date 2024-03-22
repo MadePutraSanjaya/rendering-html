@@ -9,22 +9,20 @@ import (
 	"github.com/google/uuid"
 )
 
+var body struct {
+	RobotId          string
+	VendorId         string
+	TaskId           string
+	TaskType         string
+	DestinationPoint string
+}
+
 func DeliverysCreate(c *gin.Context) {
 	// Generate new UUID
 	id := uuid.New()
 
-	// get data
-	var body struct {
-		RobotId          string
-		VendorId         string
-		TaskId           string
-		TaskType         string
-		DestinationPoint string
-	}
-
-	c.Bind(&body)
-
 	// create delivery
+	c.Bind(&body)
 	delivery := models.Delivery{ID: id, RobotId: body.RobotId, VendorId: body.VendorId, TaskId: body.TaskId, TaskType: body.TaskType, DestinationPoint: body.DestinationPoint}
 	result := initializers.DB.Create(&delivery)
 
@@ -40,45 +38,41 @@ func DeliverysCreate(c *gin.Context) {
 	})
 }
 
-func DeliverysIndex(c *gin.Context) {
+func DeliverysIndex(ctx *gin.Context) {
 	// get data
 	var deliverys []models.Delivery
 	result := initializers.DB.Find(&deliverys)
 
-	// Response
-	c.JSON(200, gin.H{
+	// send to html
+	ctx.HTML(http.StatusOK, "index.delivery.html", gin.H{
 		"deliverys": deliverys,
 	})
 
+	// Response
 	if result.Error != nil {
-		c.Status(400)
+		ctx.Status(400)
 		return
 	}
 
 }
 
-func DeliverysShow(c *gin.Context) {
+func DeliverysShow(ctx *gin.Context) {
+	var delivery models.Delivery
 	// get id
-	idStr := c.Param("id")
-	id, err := uuid.Parse(idStr)
-	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid ID format"})
+	if err := initializers.DB.Where("id = ?", ctx.Param("id")).First(&delivery).Error; err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Data not found!"})
 		return
 	}
-
 	// get data
-	var deliverys models.Delivery
-	result := initializers.DB.Find(&deliverys, id)
-
-	// Response
-	c.JSON(200, gin.H{
-		"deliverys": deliverys,
+	ctx.HTML(http.StatusOK, "detail.delivery.html", gin.H{
+		"id":                delivery.ID,
+		"robot_id":          delivery.RobotId,
+		"vendor_id":         delivery.VendorId,
+		"task_id":           delivery.TaskId,
+		"task_type":         delivery.TaskType,
+		"destination_point": delivery.DestinationPoint,
 	})
 
-	if result.Error != nil {
-		c.Status(400)
-		return
-	}
 }
 
 func DeliverysUpdate(c *gin.Context) {
@@ -91,14 +85,6 @@ func DeliverysUpdate(c *gin.Context) {
 	}
 
 	// get data
-	var body struct {
-		RobotId          string
-		VendorId         string
-		TaskId           string
-		TaskType         string
-		DestinationPoint string
-	}
-
 	if err := c.Bind(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

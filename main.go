@@ -1,16 +1,7 @@
 package main
 
-import (
-	"renderin-html/initializers"
-	"renderin-html/routes"
-)
+import rendermain "renderin-html/renderMain"
 
-func init() {
-	initializers.LoadEnvVariables()
-	initializers.ConnectToDb()
-}
-
-func main() {
-	routes.Routes()
-	routes.ActionRoute()
+func main()  {
+	rendermain.MainRoot()
 }
